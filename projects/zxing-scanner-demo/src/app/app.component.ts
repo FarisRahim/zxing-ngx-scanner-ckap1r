@@ -55,8 +55,8 @@ export class AppComponent {
 
   onCodeResult(resultString: string) {
     this.qrResultString = resultString;
-    const beepSound: HTMLAudioElement = new Audio('../../assets/sounds/beep-06.mp3')
-    beepSound.play()
+    // const beepSound: HTMLAudioElement = new Audio('../../assets/sounds/beep-06.mp3')
+    // beepSound.play()
   }
 
   onDeviceSelectChange(selected: string) {
@@ -114,8 +114,8 @@ export class AppComponent {
     this.tryHarder = !this.tryHarder;
   }
 
-  // onScanSuccess(value): void {
-  //   const beepSound: HTMLAudioElement = new Audio('../../assets/bp-assets/beep-06.mp3')
-  //   beepSound.play()
-  // }
+  onScanSuccess(value): void {
+    const beepSound: HTMLAudioElement = new Audio('../../assets/bp-assets/beep-06.mp3')
+    beepSound.play()
+  }
 }
