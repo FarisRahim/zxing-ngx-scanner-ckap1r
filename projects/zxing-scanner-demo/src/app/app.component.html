@@ -6,8 +6,8 @@
         Enable Try-harder
       </mat-list-option>
       <mat-list-option checkboxPosition="start" (click)="toggleTorch()" [selected]="torchEnabled"
-        *ngIf="torchAvailable$ | async">
-        Enable Torch
+                       *ngIf="torchAvailable$ | async">
+        Enable Light-Torch
       </mat-list-option>
     </mat-selection-list>
     <mat-divider></mat-divider>
@@ -17,29 +17,46 @@
 
   <header>
     <mat-form-field appearance="fill">
-      <select matNativeControl matInput (change)="onDeviceSelectChange($event.target.value)">
-        <option value="" [selected]="!currentDevice">No Device Selected</option>
-        <option *ngFor="let device of availableDevices" [value]="device.deviceId"
-          [selected]="currentDevice && device.deviceId === currentDevice.deviceId">{{device.label}}</option>
-      </select>
+      <mat-select [value]="deviceSelected" (valueChange)="onDeviceSelectChange($event)">
+        <mat-option value="">No Device Selected</mat-option>
+        <mat-option *ngFor="let device of availableDevices" [value]="device.deviceId">{{device.label}}</mat-option>
+      </mat-select>
     </mat-form-field>
     <button mat-icon-button [matMenuTriggerFor]="appMenu">
       <mat-icon>more_vert</mat-icon>
     </button>
   </header>
 
-  <zxing-scanner [torch]="torchEnabled" [(device)]="currentDevice" (scanSuccess)="onCodeResult($event)"
-    [formats]="formatsEnabled" [tryHarder]="tryHarder" (permissionResponse)="onHasPermission($event)"
-    (camerasFound)="onCamerasFound($event)" (torchCompatible)="onTorchCompatible($event)"></zxing-scanner>
+  <zxing-scanner [torch]="torchEnabled" [device]="deviceCurrent" (deviceChange)="onDeviceChange($event)" (scanSuccess)="onCodeResult($event)"
+                 [formats]="formatsEnabled" [tryHarder]="tryHarder" (permissionResponse)="onHasPermission($event)"
+                 (camerasFound)="onCamerasFound($event)" (torchCompatible)="onTorchCompatible($event)"></zxing-scanner>
 
-  <section class="results" *ngIf="qrResultString">
+  <div fxLayout="column" fxLayoutAlign="space-around center" >
     <div>
-      <small>Result</small>
-      <strong>{{ qrResultString }}</strong>
+      <mat-form-field appearance="fill">
+        <mat-label>Barcode</mat-label>
+        <input [value]="qrResultString" matInput [(ngModel)]="qrResultString">
+      </mat-form-field>
+      <button mat-icon-button (click)="clearBarcode()">&times;</button>
     </div>
-    <button mat-icon-button (click)="clearResult()">&times;</button>
-  </section>
-
+    <div>
+      <mat-form-field appearance="fill">
+        <mat-label>Received By</mat-label>
+        <input matInput [(ngModel)]="receivedBy">
+      </mat-form-field>
+      <button mat-icon-button (click)="clearReceivedBy()">&times;</button>
+    </div>
+    <div>
+      <mat-form-field appearance="fill">
+        <mat-label>Received Date</mat-label>
+        <input matInput [(ngModel)]="receivedDate">
+      </mat-form-field>
+      <button mat-icon-button (click)="clearReceivedDate()">&times;</button>
+    </div>
+  </div>
+  <div fxLayout="column" fxLayoutAlign="end stretch">
+    <button color="primary" mat-raised-button>Confirm Receive</button>
+  </div>
 </div>
 
 <ng-container *ngIf="hasPermission === undefined">

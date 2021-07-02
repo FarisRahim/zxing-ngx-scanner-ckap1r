@@ -13,7 +13,8 @@ import { AppInfoDialogComponent } from './app-info-dialog/app-info-dialog.compon
 export class AppComponent {
 
   availableDevices: MediaDeviceInfo[];
-  currentDevice: MediaDeviceInfo = null;
+  deviceCurrent: MediaDeviceInfo;
+  deviceSelected: string;
 
   formatsEnabled: BarcodeFormat[] = [
     BarcodeFormat.CODE_128,
@@ -26,6 +27,8 @@ export class AppComponent {
   hasPermission: boolean;
 
   qrResultString: string;
+  receivedBy: string;
+  receivedDate: string;
 
   torchEnabled = false;
   torchAvailable$ = new BehaviorSubject<boolean>(false);
@@ -33,8 +36,16 @@ export class AppComponent {
 
   constructor(private readonly _dialog: MatDialog) { }
 
-  clearResult(): void {
-    this.qrResultString = null;
+  clearBarcode() {
+    this.qrResultString = '';
+  }
+
+  clearReceivedBy() {
+    this.receivedBy = '';
+  }
+
+  clearReceivedDate() {
+    this.receivedDate = '';
   }
 
   onCamerasFound(devices: MediaDeviceInfo[]): void {
@@ -44,11 +55,23 @@ export class AppComponent {
 
   onCodeResult(resultString: string) {
     this.qrResultString = resultString;
+    const beepSound: HTMLAudioElement = new Audio('../../assets/sounds/beep-06.mp3')
+    beepSound.play()
   }
 
   onDeviceSelectChange(selected: string) {
+    const selectedStr = selected || '';
+    if (this.deviceSelected === selectedStr) { return; }
+    this.deviceSelected = selectedStr;
     const device = this.availableDevices.find(x => x.deviceId === selected);
-    this.currentDevice = device || null;
+    this.deviceCurrent = device || undefined;
+  }
+
+  onDeviceChange(device: MediaDeviceInfo) {
+    const selectedStr = device?.deviceId || '';
+    if (this.deviceSelected === selectedStr) { return; }
+    this.deviceSelected = selectedStr;
+    this.deviceCurrent = device || undefined;
   }
 
   openFormatsDialog() {
@@ -59,7 +82,11 @@ export class AppComponent {
     this._dialog
       .open(FormatsDialogComponent, { data })
       .afterClosed()
-      .subscribe(x => { if (x) { this.formatsEnabled = x; } });
+      .subscribe(x => {
+        if (x) {
+          this.formatsEnabled = x;
+        }
+      });
   }
 
   onHasPermission(has: boolean) {
@@ -86,4 +113,9 @@ export class AppComponent {
   toggleTryHarder(): void {
     this.tryHarder = !this.tryHarder;
   }
+
+  // onScanSuccess(value): void {
+  //   const beepSound: HTMLAudioElement = new Audio('../../assets/bp-assets/beep-06.mp3')
+  //   beepSound.play()
+  // }
 }
